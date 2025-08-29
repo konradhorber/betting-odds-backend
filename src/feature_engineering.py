@@ -2,18 +2,15 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, List
 from math import exp
-from scipy.stats import norm
 
 
 class FeatureEngineer:
     """Extract and engineer numeric features for Poisson"""
 
-    def __init__(self, sigma_gd: float = 1.6, min_odds: float = 1.01):
+    def __init__(self, min_odds: float = 1.01):
         """
-        sigma_gd: stdev used in AH→goal-diff normal approximation (tune via CV)
         min_odds: lower clip for odds to avoid divide-by-zero / nonsense odds
         """
-        self.sigma_gd = sigma_gd
         self.min_odds = min_odds
 
     # ---- internal helpers -------------------------------------------------
@@ -61,9 +58,6 @@ class FeatureEngineer:
             - AvgA (float): Market average away win odds
             - AvgOver2_5 (float): Market average over 2.5 goals odds
             - AvgUnder2_5 (float): Market average under 2.5 goals odds
-            - AHh (float): Market size of handicap (home team)
-            - AvgAHH (float): Market average Asian handicap home team odds
-            - AvgAHA (float): Market average Asian handicap away team odds
         Returns:
           X (pd.DataFrame): Engineered X with following columns:
             Market-derived probabilities and margins:
@@ -100,8 +94,7 @@ class FeatureEngineer:
         # Validate required columns exist
         required: List[str] = [
             'AvgH', 'AvgD', 'AvgA',
-            'AvgOver2_5', 'AvgUnder2_5',
-            'AHh', 'AvgAHH', 'AvgAHA'
+            'AvgOver2_5', 'AvgUnder2_5'
         ]
         missing = [c for c in required if c not in X.columns]
         if missing:
@@ -109,7 +102,7 @@ class FeatureEngineer:
 
         # Safety clips for odds (avoid zero / sub-1 values)
         for c in [
-            'AvgH', 'AvgD', 'AvgA', 'AvgOver2_5', 'AvgUnder2_5', 'AvgAHH', 'AvgAHA'
+            'AvgH', 'AvgD', 'AvgA', 'AvgOver2_5', 'AvgUnder2_5'
         ]:
             X[c] = pd.to_numeric(
                 X[c], errors='coerce'
@@ -134,14 +127,9 @@ class FeatureEngineer:
         # --- implied total goals mu_total (invert Poisson tail at 2.5) ---
         X['mu_total'] = X['pOver25'].apply(self._invert_mu)
 
-        # --- AH fair prob + mu_gd ---
-        qHh, qAh = 1 / X['AvgAHH'], 1 / X['AvgAHA']
-        sh = qHh + qAh
-        pAH_home = (qHh / sh).clip(1e-6, 1 - 1e-6)
-        X['ah_margin'] = sh - 1
-        X['mu_gd'] = X['AHh'] + self.sigma_gd * norm.ppf(pAH_home)
-
-        # --- implied lambdas ---
+        # --- implied lambdas (simplified without handicap) ---
+        # Use home advantage from 1X2 odds to estimate goal difference
+        X['mu_gd'] = X['logit_HA']
         X['lambda_home0'] = np.clip((X['mu_total'] + X['mu_gd']) / 2, 0, None)
         X['lambda_away0'] = np.clip((X['mu_total'] - X['mu_gd']) / 2, 0, None)
 
@@ -155,11 +143,11 @@ class FeatureEngineer:
         feature_cols = [
             # market-derived probabilities/margins
             'pH', 'pD', 'pA', 'logit_HA', 'logit_draw', 'overround_1x2',
-            'pOver25', 'pUnder25', 'overround_OU', 'ah_margin',
+            'pOver25', 'pUnder25', 'overround_OU',
             # latent totals / GD / lambdas
             'mu_total', 'mu_gd', 'lambda_home0', 'lambda_away0', 'lambda_diff',
-            # simple interactions + useful raw line
-            'mu_total_x_logit_HA', 'p_diff', 'p_non_draw', 'AHh',
+            # simple interactions
+            'mu_total_x_logit_HA', 'p_diff', 'p_non_draw',
         ]
         X_out = X[feature_cols].astype('float32')
 
@@ -183,9 +171,6 @@ class FeatureEngineer:
             - AvgA (float): Market average away win odds
             - AvgOver2_5 (float): Market average over 2.5 goals odds
             - AvgUnder2_5 (float): Market average under 2.5 goals odds
-            - AHh (float): Market size of handicap (home team)
-            - AvgAHH (float): Market average Asian handicap home team odds
-            - AvgAHA (float): Market average Asian handicap away team odds
         Returns:
           X_engineered (pd.DataFrame): numeric features for sklearn (see
             engineer_X() docs)

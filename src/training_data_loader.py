@@ -27,11 +27,7 @@ class TrainingDataLoader():
                 - AvgA (float): Market average away win odds
                 - Avg>2.5 (float): Market average over 2.5 goals odds
                 - Avg<2.5 (float): Market average under 2.5 goals odds
-                - AHh (float): Market size of handicap (home team)
-                - AvgAHH (float): Market average Asian handicap home team odds
-                - AvgAHA (float): Market average Asian handicap away team odds
 
-        Note:
             - Files from before 2019-20 season use 'BbAv*' column names which are
               automatically remapped to 'Avg*' for consistency
             - Incomplete rows (with any NaN values) are automatically filtered out
@@ -57,9 +53,6 @@ class TrainingDataLoader():
                 "AvgA",       # Market average away win odds
                 "Avg>2.5",    # Market average over 2.5 goals
                 "Avg<2.5",    # Market average under 2.5 goals
-                "AHh",        # Market size of handicap (home team)
-                "AvgAHH",     # Market average Asian handicap home team odds
-                "AvgAHA",     # Market average Asian handicap away team odds
             ]
             cols_to_keep_before19_20 = [
                 "Div",       # League Division
@@ -73,9 +66,6 @@ class TrainingDataLoader():
                 "BbAvA",     # Betbrain average away win odds
                 "BbAv>2.5",  # Betbrain average over 2.5 goals
                 "BbAv<2.5",  # Betbrain average under 2.5 goals
-                "BbAHh",     # Betbrain size of handicap (home team)
-                "BbAvAHH",   # Betbrain average Asian handicap home team odds
-                "BbAvAHA",   # Betbrain average Asian handicap away team odds
             ]
             remapper_after19_20 = {
                 "Avg>2.5": "AvgOver2_5",
@@ -87,12 +77,9 @@ class TrainingDataLoader():
                 "BbAvA": "AvgA",
                 "BbAv>2.5": "AvgOver2_5",
                 "BbAv<2.5": "AvgUnder2_5",
-                "BbAHh": "AHh",
-                "BbAvAHH": "AvgAHH",
-                "BbAvAHA": "AvgAHA",
             }
 
-            df = pd.DataFrame(columns=cols_to_keep_from19_20)
+            dataframes = []
 
             for file in self.directory.glob(files_to_load):
                 interim_df = pd.read_csv(file)
@@ -124,7 +111,11 @@ class TrainingDataLoader():
                         f"(kept {rows_after}/{rows_before} complete rows)"
                     )
 
-                df = pd.concat([df, interim_df], ignore_index=True)
+                if not interim_df.empty:
+                    dataframes.append(interim_df)
+
+            # Concatenate all dataframes at once
+            df = pd.concat(dataframes, ignore_index=True) if dataframes else pd.DataFrame()
 
             return df
 

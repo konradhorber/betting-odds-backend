@@ -19,9 +19,6 @@ class Odds(BaseModel):
     AvgA: float
     AvgOver2_5: float
     AvgUnder2_5: float
-    AHh: float
-    AvgAHH: float
-    AvgAHA: float
 
 
 class Prediction(BaseModel):
