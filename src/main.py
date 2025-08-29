@@ -46,8 +46,8 @@ async def lifespan(app: FastAPI):
     else:
         success = download_model()
         if success:
+            model.load(path)
             model_loaded = True
-        model.load(path)
     feature_engineer = FeatureEngineer()
     yield
 
