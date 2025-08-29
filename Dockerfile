@@ -19,9 +19,8 @@ RUN poetry config virtualenvs.create false
 # Copy poetry files
 COPY pyproject.toml poetry.lock* ./
 
-# Install production dependencies + google-cloud-storage for model download
-RUN poetry install --only=main --no-dev --no-root && \
-    pip install google-cloud-storage
+# Install production dependencies only
+RUN poetry install --only=main --no-root
 
 # Copy application code
 COPY src/ ./src/
