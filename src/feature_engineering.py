@@ -59,8 +59,8 @@ class FeatureEngineer:
             - AvgH (float): Market average home win odds
             - AvgD (float): Market average draw win odds
             - AvgA (float): Market average away win odds
-            - Avg>2.5 (float): Market average over 2.5 goals odds
-            - Avg<2.5 (float): Market average under 2.5 goals odds
+            - AvgOver2_5 (float): Market average over 2.5 goals odds
+            - AvgUnder2_5 (float): Market average under 2.5 goals odds
             - AHh (float): Market size of handicap (home team)
             - AvgAHH (float): Market average Asian handicap home team odds
             - AvgAHA (float): Market average Asian handicap away team odds
@@ -100,7 +100,7 @@ class FeatureEngineer:
         # Validate required columns exist
         required: List[str] = [
             'AvgH', 'AvgD', 'AvgA',
-            'Avg>2.5', 'Avg<2.5',
+            'AvgOver2_5', 'AvgUnder2_5',
             'AHh', 'AvgAHH', 'AvgAHA'
         ]
         missing = [c for c in required if c not in X.columns]
@@ -181,8 +181,8 @@ class FeatureEngineer:
             - AvgH (float): Market average home win odds
             - AvgD (float): Market average draw win odds
             - AvgA (float): Market average away win odds
-            - Avg>2.5 (float): Market average over 2.5 goals odds
-            - Avg<2.5 (float): Market average under 2.5 goals odds
+            - AvgOver2_5 (float): Market average over 2.5 goals odds
+            - AvgUnder2_5 (float): Market average under 2.5 goals odds
             - AHh (float): Market size of handicap (home team)
             - AvgAHH (float): Market average Asian handicap home team odds
             - AvgAHA (float): Market average Asian handicap away team odds
