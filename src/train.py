@@ -1,6 +1,6 @@
 from training_data_loader import TrainingDataLoader
 from feature_engineering import FeatureEngineer
-import models
+import src.models
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 import pandas as pd
@@ -13,7 +13,7 @@ loader = TrainingDataLoader(directory=directory)
 feature_engineer = FeatureEngineer()
 # model = models.ExpectedPointsModel(K=5, alpha=0.6, epochs=25, batch_size=512)
 # model = models.PoissonGoalsRegressor(max_iter=2000)
-model = models.NBExpectedPointsModel(
+model = src.models.neg_binomial.NBExpectedPointsModel(
     K=5,
     epochs=40,
     lr=2e-3,

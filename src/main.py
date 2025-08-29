@@ -2,8 +2,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from pathlib import Path
-from models import NBExpectedPointsModel, Model
-from feature_engineering import FeatureEngineer
+from src.models.neg_binomial import NBExpectedPointsModel
+from src.models.model import Model
+from src.feature_engineering import FeatureEngineer
 import pandas as pd
 from scripts.download_model import download_model
 
@@ -42,7 +43,9 @@ async def lifespan(app: FastAPI):
     if path.exists():
         model.load(path)
     else:
-        download_model()
+        success = download_model()
+        if not success:
+            raise RuntimeError("Model not found and download failed") 
         model.load(path)
     feature_engineer = FeatureEngineer()
     yield

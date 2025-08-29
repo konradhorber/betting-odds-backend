@@ -6,7 +6,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models import Model
+from src.models import Model
 
 
 # ------------------------
@@ -300,7 +300,11 @@ class NBExpectedPointsModel(Model):
         torch.save(payload, path)
 
     def load(self, path: Path):
-        payload = torch.load(path, map_location=self.device)
+        payload = torch.load(
+            path,
+            map_location=self.device,
+            weights_only=False
+        )
         st = payload["state"]
         self.K = int(st["K"])
         self.hidden = int(st["hidden"])

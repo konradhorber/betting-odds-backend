@@ -1,6 +1,6 @@
 from sklearn.multioutput import MultiOutputRegressor
 from sklearn.linear_model import PoissonRegressor as SkPoissonRegressor
-from models.model import Model
+from .model import Model
 import joblib
 from pathlib import Path
 
