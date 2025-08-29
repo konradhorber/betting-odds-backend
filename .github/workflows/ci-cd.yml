@@ -84,10 +84,10 @@ jobs:
 
     - name: Install dependencies
       if: steps.cached-poetry-dependencies-model.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
+      run: poetry install
 
     - name: Install project
-      run: poetry install --no-interaction
+      run: poetry install
 
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
