@@ -34,18 +34,19 @@ class Prediction(BaseModel):
 
 feature_engineer: FeatureEngineer = FeatureEngineer()
 model: Model = NBExpectedPointsModel()
-
+model_loaded = False
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global model, feature_engineer
+    global model, feature_engineer, model_loaded
     path = Path("models/trained_model.pkl")
     if path.exists():
         model.load(path)
+        model_loaded = True
     else:
         success = download_model()
-        if not success:
-            raise RuntimeError("Model not found and download failed") 
+        if success:
+            model_loaded = True
         model.load(path)
     feature_engineer = FeatureEngineer()
     yield
@@ -73,6 +74,8 @@ async def health():
 @app.post("/predict", response_model=Prediction)
 async def predict_score(odds: Odds):
     """Predict score using ML model with betting market data"""
+    if not model_loaded:
+        raise HTTPException(status_code=503, detail="Model not loaded")
     X = feature_engineer.engineer_X(pd.DataFrame([odds.model_dump()]))
     try:
         prediction = model.predict(X)
