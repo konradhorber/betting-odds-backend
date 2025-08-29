@@ -50,70 +50,10 @@ jobs:
     - name: Run tests
       run: poetry run pytest
 
-  train-and-upload-model:
-    name: Train Model and Upload to GCS
-    runs-on: ubuntu-latest
-    needs: test
-    
-    permissions:
-      contents: read
-      id-token: write
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-      with:
-        version: 1.8.3
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-
-    - name: Load cached venv
-      id: cached-poetry-dependencies-model
-      uses: actions/cache@v4
-      with:
-        path: .venv
-        key: venv-model-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-
-    - name: Install dependencies
-      if: steps.cached-poetry-dependencies-model.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
-
-    - name: Install project
-      run: poetry install --no-interaction
-
-    - name: Authenticate to Google Cloud
-      uses: google-github-actions/auth@v2
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v2
-
-    - name: Install Google Cloud Storage
-      run: poetry run pip install google-cloud-storage
-
-    - name: Train model
-      run: |
-        echo "Training model..."
-        poetry run python src/train.py
-
-    - name: Upload model to GCS
-      run: |
-        echo "Uploading model to gs://$MODEL_BUCKET_NAME..."
-        poetry run python scripts/upload_model.py $MODEL_BUCKET_NAME
-
   build-and-deploy:
     name: Build and Deploy to Cloud Run
     runs-on: ubuntu-latest
-    needs: [test, train-and-upload-model]
+    needs: [test]
     
     permissions:
       contents: read
