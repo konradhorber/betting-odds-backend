@@ -1,6 +1,7 @@
 models/trained_model.pkl
 src/data*
 __pycache__/*
+*.pyc
 .venv/*
 .vscode/*
 .mypy_cache/*

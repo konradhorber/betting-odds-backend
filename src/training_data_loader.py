@@ -77,12 +77,16 @@ class TrainingDataLoader():
                 "BbAvAHH",   # Betbrain average Asian handicap home team odds
                 "BbAvAHA",   # Betbrain average Asian handicap away team odds
             ]
-            remapper = {
+            remapper_after19_20 = {
+                "Avg>2.5": "AvgOver2_5",
+                "Avg<2.5": "AvgUnder2_5"
+            }
+            remapper_before19_20 = {
                 "BbAvH": "AvgH",
                 "BbAvD": "AvgD",
                 "BbAvA": "AvgA",
-                "BbAv>2.5": "Avg>2.5",
-                "BbAv<2.5": "Avg<2.5",
+                "BbAv>2.5": "AvgOver2_5",
+                "BbAv<2.5": "AvgUnder2_5",
                 "BbAHh": "AHh",
                 "BbAvAHH": "AvgAHH",
                 "BbAvAHA": "AvgAHA",
@@ -94,10 +98,15 @@ class TrainingDataLoader():
                 interim_df = pd.read_csv(file)
                 try:
                     interim_df = interim_df[cols_to_keep_from19_20]
+                    interim_df.rename(
+                        columns=remapper_after19_20, inplace=True
+                    )
                 except KeyError:
                     try:
                         interim_df = interim_df[cols_to_keep_before19_20].copy()
-                        interim_df.rename(columns=remapper, inplace=True)
+                        interim_df.rename(
+                            columns=remapper_before19_20, inplace=True
+                        )
                     except KeyError as e:
                         print(e)
                         continue

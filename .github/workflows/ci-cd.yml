@@ -91,6 +91,7 @@ jobs:
           --max-instances 1 \
           --timeout 300 \
           --concurrency 80 \
+          --service-account ${{ secrets.GCP_SERVICE_ACCOUNT }} \
           --set-env-vars MODEL_BUCKET_NAME=${{ secrets.MODEL_BUCKET_NAME }}
 
     - name: Display deployment URLs
