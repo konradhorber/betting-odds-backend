@@ -109,7 +109,7 @@ class FeatureEngineer:
 
         # Safety clips for odds (avoid zero / sub-1 values)
         for c in [
-            'AvgH', 'AvgD', 'AvgA', 'Avg>2.5', 'Avg<2.5', 'AvgAHH', 'AvgAHA'
+            'AvgH', 'AvgD', 'AvgA', 'AvgOver2_5', 'AvgUnder2_5', 'AvgAHH', 'AvgAHA'
         ]:
             X[c] = pd.to_numeric(
                 X[c], errors='coerce'
@@ -126,7 +126,7 @@ class FeatureEngineer:
         X['overround_1x2'] = s - 1
 
         # --- OU(2.5) fair probs + margin ---
-        qo, qu = 1 / X['Avg>2.5'], 1 / X['Avg<2.5']
+        qo, qu = 1 / X['AvgOver2_5'], 1 / X['AvgUnder2_5']
         so = qo + qu
         X['pOver25'], X['pUnder25'] = qo / so, qu / so
         X['overround_OU'] = so - 1
