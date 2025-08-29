@@ -58,6 +58,18 @@ app = FastAPI(
 )
 
 
+@app.get("/model-info")
+async def model_info():
+    """Health check endpoint for Cloud Run"""
+    return {"status": "healthy", "model": "loaded" if model else "not_loaded"}
+
+
+@app.get("/health")
+async def health():
+    """Health check endpoint"""
+    return {"status": "ok"}
+
+
 @app.post("/predict", response_model=Prediction)
 async def predict_score(odds: Odds):
     """Predict score using ML model with betting market data"""
