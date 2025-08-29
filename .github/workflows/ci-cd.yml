@@ -71,6 +71,9 @@ jobs:
     - name: Configure Docker to use gcloud as credential helper
       run: gcloud auth configure-docker $ARTIFACT_REGISTRY_REGION-docker.pkg.dev
 
+    - name: Pull latest image for caching
+      run: docker pull $ARTIFACT_REGISTRY_REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY_REPO/$SERVICE_NAME:latest || true
+
     - name: Build and push image
       run: |
         docker build \
