@@ -87,10 +87,8 @@ jobs:
           --platform managed \
           --allow-unauthenticated \
           --port 8000 \
-          --memory 1Gi \
-          --cpu 2 \
           --min-instances 0 \
-          --max-instances 10 \
+          --max-instances 1 \
           --timeout 300 \
           --concurrency 80 \
           --set-env-vars MODEL_BUCKET_NAME=${{ secrets.MODEL_BUCKET_NAME }}
