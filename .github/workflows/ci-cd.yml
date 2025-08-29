@@ -40,8 +40,12 @@ jobs:
         path: .venv
         key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+
     - name: Install project
-      run: poetry install
+      run: poetry install --no-interaction
 
     - name: Run tests
       run: poetry run pytest
@@ -78,8 +82,12 @@ jobs:
         path: .venv
         key: venv-model-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
+    - name: Install dependencies
+      if: steps.cached-poetry-dependencies-model.outputs.cache-hit != 'true'
+      run: poetry install --no-interaction --no-root
+
     - name: Install project
-      run: poetry install
+      run: poetry install --no-interaction
 
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2

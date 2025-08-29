@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "Betting odds prediction backend API"
 authors = ["konradhorber <konrad.horber@gmail.com>"]
 readme = "README.md"
-packages = [{include = "betting_odds_backend", from = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.14"
