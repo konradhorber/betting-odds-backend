@@ -19,14 +19,16 @@ RUN poetry config virtualenvs.create false
 # Copy poetry files
 COPY pyproject.toml poetry.lock* ./
 
-# Install production dependencies only
-RUN poetry install --only=main --no-dev --no-root
+# Install production dependencies + google-cloud-storage for model download
+RUN poetry install --only=main --no-dev --no-root && \
+    pip install google-cloud-storage
 
 # Copy application code
 COPY src/ ./src/
+COPY scripts/ ./scripts/
 
-# Create models directory
-RUN mkdir -p models
+# Create models directory and make script executable
+RUN mkdir -p models && chmod +x scripts/download_model.py
 
 # Create non-root user
 RUN useradd --create-home --shell /bin/bash app \
@@ -40,5 +42,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/model-info || exit 1
 
-# Run the FastAPI application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Set production environment and run model download then start FastAPI
+ENV ENVIRONMENT=production
+CMD ["sh", "-c", "python scripts/download_model.py && uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 1"]
